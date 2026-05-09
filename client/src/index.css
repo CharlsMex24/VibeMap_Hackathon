@@ -1,10 +1,145 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
 @plugin "@tailwindcss/typography";
 
 @theme {
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-serif: "Playfair Display", "Iowan Old Style", Georgia, serif;
+}
+
+:root {
+  /* Gallery editorial palette */
+  --paper: #EFE8D6;            /* warm cream, gallery wall */
+  --paper-2: #E8E0CB;          /* slightly deeper cream for depth */
+  --canvas: #FAF5E5;            /* warm ivory "framed art" cards (softer than pure white) */
+  --canvas-inset: #F4EEDA;      /* subtly darker than card — for highlighted areas inside cards */
+  --ink: #18181B;               /* gallery black */
+  --ink-soft: #3A3935;
+  --muted: #6B6357;             /* warm grey */
+  --muted-2: #8B8275;
+  --line: #D9CFB8;              /* warm beige divider */
+  --line-soft: #E5DDC9;
+  --gold: #A88B4C;              /* muted antique gold */
+  --gold-soft: #C9AE74;
+  --accent-soft: #F4EFE0;       /* used in subtle highlights */
+  --rose: #B0584C;              /* muted error */
+  --rose-soft: #F3DAD3;
+}
+
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 min-h-screen;
+  font-family: var(--font-sans);
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(ellipse 1200px 800px at 20% 10%, rgba(255, 255, 255, 0.5), transparent 60%),
+    radial-gradient(ellipse 1000px 700px at 80% 90%, rgba(168, 139, 76, 0.06), transparent 60%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* Subtle paper grain noise — premium, not neon */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.55  0 0 0 0 0.5  0 0 0 0 0.42  0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  mix-blend-mode: multiply;
+}
+
+/* Soft top vignette accent line */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Helpers ---- */
+
+.gallery-card {
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  box-shadow:
+    0 1px 0 rgba(24, 24, 27, 0.015),
+    0 8px 24px -14px rgba(24, 24, 27, 0.06),
+    0 2px 6px -3px rgba(168, 139, 76, 0.05);
+}
+
+.gallery-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.gallery-divider::before,
+.gallery-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.serif {
+  font-family: var(--font-serif);
+}
+
+.smallcaps {
+  font-feature-settings: "smcp", "c2sc";
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Numeric label like a museum catalog */
+.catalog-num {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--gold);
+  font-variant-numeric: oldstyle-nums;
+}
+
+/* Subtle hover for clickable rows */
+.row-hover {
+  transition: background-color 200ms ease, border-color 200ms ease;
+}
+.row-hover:hover {
+  background-color: var(--accent-soft);
+  border-color: var(--gold-soft);
+}
+
+/* Underline animated link */
+.link-underline {
+  background-image: linear-gradient(var(--ink), var(--ink));
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 250ms ease;
+}
+.link-underline:hover {
+  background-size: 100% 1px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--paper); }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted-2); }
+
+::selection { background: var(--gold-soft); color: var(--ink); }

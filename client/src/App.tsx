@@ -4,8 +4,24 @@ import mermaid from 'mermaid'
 
 mermaid.initialize({
   startOnLoad: false,
-  theme: 'neutral',
+  theme: 'base',
   securityLevel: 'strict',
+  themeVariables: {
+    background: '#F4EEDA',
+    primaryColor: '#FAF5E5',
+    primaryTextColor: '#18181B',
+    primaryBorderColor: '#A88B4C',
+    secondaryColor: '#F4EFE0',
+    tertiaryColor: '#EFE8D6',
+    lineColor: '#3A3935',
+    textColor: '#18181B',
+    mainBkg: '#FAF5E5',
+    nodeBorder: '#A88B4C',
+    clusterBkg: '#F4EFE0',
+    clusterBorder: '#D9CFB8',
+    edgeLabelBackground: '#F4EEDA',
+    fontFamily: 'Inter, system-ui, sans-serif',
+  },
 })
 
 type ProjectFile = { path: string; content: string }
@@ -89,9 +105,9 @@ const Mermaid = ({ chart }: { chart: string }) => {
 
   if (renderError) {
     return (
-      <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-sm font-mono text-amber-700">
-        ⚠️ {renderError}
-        <pre className="mt-2 text-xs whitespace-pre-wrap text-amber-900/70">{chart}</pre>
+      <div className="p-4 bg-[#F4EEDA] border border-[#D9CFB8] rounded-md text-sm font-mono text-[#6B6357]">
+        — {renderError}
+        <pre className="mt-2 text-xs whitespace-pre-wrap text-[#8B8275]">{chart}</pre>
       </div>
     )
   }
@@ -99,7 +115,7 @@ const Mermaid = ({ chart }: { chart: string }) => {
   return (
     <div
       ref={ref}
-      className="flex justify-center my-6 overflow-x-auto p-4 bg-white rounded-3xl border border-slate-100 shadow-sm"
+      className="flex justify-center my-6 overflow-x-auto p-8 bg-[#F4EEDA] rounded-md border border-[#D9CFB8]"
     />
   )
 }
@@ -166,34 +182,34 @@ const readEntry = async (entry: FileSystemEntry): Promise<ProjectFile[]> => {
 }
 
 const importanciaStyles: Record<OverviewArchivo['importancia'], string> = {
-  alta: 'bg-indigo-50 text-indigo-700 ring-indigo-100',
-  media: 'bg-slate-100 text-slate-600 ring-slate-200',
-  baja: 'bg-slate-50 text-slate-400 ring-slate-100',
+  alta: 'bg-[#F4EFE0] text-[#A88B4C] ring-[#D9CFB8]',
+  media: 'bg-[#F4EEDA] text-[#6B6357] ring-[#E5DDC9]',
+  baja: 'bg-transparent text-[#8B8275] ring-[#E5DDC9]',
 }
 
 function FileMapView({ fileMap }: { fileMap: FileMap }) {
   return (
     <>
       <div>
-        <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-1">
+        <div className="text-[10px] smallcaps text-[#A88B4C] mb-2 font-semibold">
           Explicación con ejemplo
         </div>
-        <p className="text-lg text-slate-800 leading-relaxed">{fileMap.explicacion}</p>
+        <p className="text-lg serif text-[#18181B] leading-relaxed">{fileMap.explicacion}</p>
       </div>
 
       {fileMap.estructura && (
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-1">
+          <div className="text-[10px] smallcaps text-[#A88B4C] mb-2 font-semibold">
             Estructura usada
           </div>
-          <p className="text-sm text-slate-700 font-mono bg-slate-100/60 inline-block px-3 py-1.5 rounded-xl">
+          <p className="text-sm text-[#3A3935] font-mono bg-[#F4EEDA] border border-[#E5DDC9] inline-block px-3 py-1.5 rounded">
             {fileMap.estructura}
           </p>
         </div>
       )}
 
       <div>
-        <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-1">
+        <div className="text-[10px] smallcaps text-[#A88B4C] mb-2 font-semibold">
           Flujo interno
         </div>
         <Mermaid chart={fileMap.diagrama_mermaid} />
@@ -201,32 +217,32 @@ function FileMapView({ fileMap }: { fileMap: FileMap }) {
 
       {fileMap.funciones.length > 0 && (
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-2">
+          <div className="text-[10px] smallcaps text-[#A88B4C] mb-3 font-semibold">
             Funciones del archivo
           </div>
-          <div className="overflow-hidden rounded-2xl border border-slate-100">
+          <div className="overflow-hidden rounded-md border border-[#D9CFB8] bg-[#F4EEDA]">
             <table className="w-full text-sm">
-              <thead className="bg-slate-100/70 text-slate-600 text-xs uppercase tracking-wider">
+              <thead className="bg-[#F4EFE0] text-[#3A3935] text-xs smallcaps">
                 <tr>
-                  <th className="text-left font-bold px-4 py-2">Nombre real</th>
-                  <th className="text-left font-bold px-4 py-2">Qué hace y cuándo</th>
-                  <th className="text-left font-bold px-4 py-2">Llama a</th>
+                  <th className="text-left font-semibold px-4 py-3">Nombre real</th>
+                  <th className="text-left font-semibold px-4 py-3">Qué hace y cuándo</th>
+                  <th className="text-left font-semibold px-4 py-3">Llama a</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
+              <tbody className="divide-y divide-[#E5DDC9]">
                 {fileMap.funciones.map((fn) => (
-                  <tr key={fn.real}>
-                    <td className="px-4 py-2 font-mono text-indigo-700 align-top whitespace-nowrap">{fn.real}</td>
-                    <td className="px-4 py-2 text-slate-700 align-top">{fn.humana}</td>
-                    <td className="px-4 py-2 align-top">
+                  <tr key={fn.real} className="hover:bg-[#F4EFE0]/40 transition-colors">
+                    <td className="px-4 py-3 font-mono text-[#A88B4C] align-top whitespace-nowrap">{fn.real}</td>
+                    <td className="px-4 py-3 text-[#3A3935] align-top">{fn.humana}</td>
+                    <td className="px-4 py-3 align-top">
                       {fn.llama_a.length === 0 ? (
-                        <span className="text-slate-300">—</span>
+                        <span className="text-[#8B8275]">—</span>
                       ) : (
                         <div className="flex flex-wrap gap-1">
                           {fn.llama_a.map((c) => (
                             <code
                               key={c}
-                              className="text-xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-md"
+                              className="text-xs bg-[#FAF5E5] text-[#6B6357] border border-[#E5DDC9] px-1.5 py-0.5 rounded"
                             >
                               {c}
                             </code>
@@ -244,13 +260,13 @@ function FileMapView({ fileMap }: { fileMap: FileMap }) {
 
       {fileMap.puntos_clave.length > 0 && (
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-2">
+          <div className="text-[10px] smallcaps text-[#A88B4C] mb-3 font-semibold">
             Puntos clave
           </div>
-          <ul className="space-y-1.5">
+          <ul className="space-y-2">
             {fileMap.puntos_clave.map((p, i) => (
-              <li key={i} className="flex items-start gap-2 text-slate-700 text-sm">
-                <span className="text-indigo-400 mt-1">●</span>
+              <li key={i} className="flex items-start gap-3 text-[#3A3935] text-sm leading-relaxed">
+                <span className="catalog-num text-xs mt-0.5 shrink-0">{String(i + 1).padStart(2, '0')}</span>
                 <span>{p}</span>
               </li>
             ))}
@@ -259,11 +275,11 @@ function FileMapView({ fileMap }: { fileMap: FileMap }) {
       )}
 
       {fileMap.resumen_archivo && (
-        <div className="bg-indigo-50/60 border border-indigo-100 rounded-2xl p-4">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-700 mb-1">
+        <div className="relative bg-[#F4EEDA] border-l-2 border-[#A88B4C] pl-5 py-3 pr-4">
+          <div className="text-[10px] smallcaps text-[#A88B4C] mb-1 font-semibold">
             En resumen
           </div>
-          <p className="text-slate-800 text-sm font-medium">{fileMap.resumen_archivo}</p>
+          <p className="serif text-[#18181B] text-base italic leading-relaxed">{fileMap.resumen_archivo}</p>
         </div>
       )}
     </>
@@ -286,51 +302,51 @@ function FileCard({
   error: string | null
 }) {
   return (
-    <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden transition-shadow hover:shadow-md">
+    <div className="gallery-card row-hover rounded-md overflow-hidden">
       <button
         type="button"
         onClick={onExpand}
-        className="w-full text-left px-6 py-5 flex items-start justify-between gap-4 group"
+        className="w-full text-left px-7 py-5 flex items-start justify-between gap-4 group cursor-pointer"
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
             <span
-              className={`text-[10px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full ring-1 ${importanciaStyles[archivo.importancia]}`}
+              className={`text-[10px] smallcaps font-semibold px-2 py-0.5 rounded ring-1 ${importanciaStyles[archivo.importancia]}`}
             >
               {archivo.importancia}
             </span>
-            <code className="text-sm font-mono text-slate-500 truncate">{archivo.ruta}</code>
+            <code className="text-xs font-mono text-[#8B8275] truncate">{archivo.ruta}</code>
           </div>
-          <p className="text-base text-slate-800 font-medium leading-snug">{archivo.rol}</p>
+          <p className="text-base serif text-[#18181B] leading-snug">{archivo.rol}</p>
         </div>
-        <div className="text-slate-300 group-hover:text-indigo-500 transition-colors mt-1">
+        <div className="text-[#A88B4C]/40 group-hover:text-[#A88B4C] transition-colors mt-1">
           <svg
             className={`w-5 h-5 transition-transform ${expanded ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
           </svg>
         </div>
       </button>
 
       {expanded && (
-        <div className="border-t border-slate-100 px-6 py-6 bg-slate-50/40 space-y-5">
+        <div className="border-t border-[#E5DDC9] px-7 py-7 bg-[#F4EEDA]/60 space-y-6">
           {loading && (
-            <div className="flex items-center gap-3 text-slate-500 text-sm">
+            <div className="flex items-center gap-3 text-[#6B6357] text-sm">
               <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" />
+                <span className="w-1.5 h-1.5 bg-[#A88B4C] rounded-full animate-bounce [animation-delay:-0.3s]" />
+                <span className="w-1.5 h-1.5 bg-[#A88B4C] rounded-full animate-bounce [animation-delay:-0.15s]" />
+                <span className="w-1.5 h-1.5 bg-[#A88B4C] rounded-full animate-bounce" />
               </div>
-              Generando mapa de este archivo…
+              <span className="serif italic">Componiendo el mapa de este archivo…</span>
             </div>
           )}
 
           {error && (
-            <div className="text-rose-700 text-sm bg-rose-50 border border-rose-100 rounded-xl p-3">
-              ⚠️ {error}
+            <div className="text-[#B0584C] text-sm bg-[#F3DAD3]/40 border border-[#B0584C]/20 rounded p-3">
+              — {error}
             </div>
           )}
 
@@ -590,27 +606,27 @@ function DiagramToCodePanel() {
 
   return (
     <div className="space-y-8">
-      <section className="bg-white rounded-[3rem] p-10 border border-slate-100 shadow-sm space-y-6">
+      <section className="gallery-card rounded-md p-10 space-y-6">
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-2">
-            Paso 1 — Sube la foto del diagrama
+          <div className="text-[10px] smallcaps text-[#A88B4C] mb-2 font-semibold">
+            <span className="catalog-num not-italic mr-2">I.</span> Sube la foto del diagrama
           </div>
-          <p className="text-slate-600 text-sm">
+          <p className="text-[#6B6357] text-sm leading-relaxed">
             Foto de un flowchart en papel, pizarra, o exportado de Lucidchart/Draw.io. JPG, PNG o WebP. Máx 8 MB.
           </p>
         </div>
 
         {cameraActive ? (
           <div className="space-y-3">
-            <div className="relative bg-black rounded-2xl overflow-hidden">
+            <div className="relative bg-[#18181B] rounded-md overflow-hidden border border-[#D9CFB8]">
               <video
                 ref={videoRef}
                 playsInline
                 muted
-                className="w-full max-h-[480px] object-contain bg-black"
+                className="w-full max-h-[480px] object-contain bg-[#18181B]"
               />
               {!cameraReady && (
-                <div className="absolute inset-0 flex items-center justify-center text-white text-sm">
+                <div className="absolute inset-0 flex items-center justify-center text-[#EFE8D6] text-sm serif italic">
                   Encendiendo cámara…
                 </div>
               )}
@@ -620,24 +636,24 @@ function DiagramToCodePanel() {
                 type="button"
                 onClick={capturePhoto}
                 disabled={!cameraReady}
-                className="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-bold rounded-2xl shadow-md shadow-indigo-200"
+                className="flex-1 px-6 py-3 bg-[#18181B] hover:bg-[#3A3935] disabled:bg-[#D9CFB8] disabled:cursor-not-allowed text-[#EFE8D6] text-sm font-medium rounded-md transition-colors cursor-pointer"
               >
-                📸 Tomar foto
+                Tomar foto
               </button>
               <button
                 type="button"
                 onClick={stopCamera}
-                className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-2xl"
+                className="px-6 py-3 bg-[#F4EEDA] hover:bg-[#FAF5E5] border border-[#D9CFB8] hover:border-[#A88B4C] text-[#3A3935] text-sm font-medium rounded-md transition-all cursor-pointer"
               >
                 Cancelar
               </button>
             </div>
           </div>
         ) : !imagePreview ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <label
               htmlFor="diagram-upload"
-              className="block border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-[2rem] p-12 text-center cursor-pointer transition-colors"
+              className="block border border-dashed border-[#D9CFB8] hover:border-[#A88B4C] hover:bg-[#F4EEDA] rounded-md p-12 text-center cursor-pointer transition-all"
             >
               <input
                 id="diagram-upload"
@@ -648,31 +664,29 @@ function DiagramToCodePanel() {
                 onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
               />
               <div className="space-y-3">
-                <div className="w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center mx-auto shadow-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="w-14 h-14 bg-[#F4EEDA] border border-[#A88B4C]/40 text-[#A88B4C] rounded-full flex items-center justify-center mx-auto">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <p className="text-lg font-bold text-slate-900">Subir archivo de imagen</p>
-                <p className="text-slate-400 text-sm">JPG, PNG o WebP — hasta 8 MB</p>
+                <p className="serif text-xl text-[#18181B]">Subir archivo de imagen</p>
+                <p className="text-[#8B8275] text-xs smallcaps">JPG · PNG · WebP — hasta 8 MB</p>
               </div>
             </label>
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-px bg-slate-200" />
-              <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">o</span>
-              <div className="flex-1 h-px bg-slate-200" />
+            <div className="gallery-divider">
+              <span className="text-[10px] smallcaps text-[#8B8275] font-semibold">o</span>
             </div>
             <button
               type="button"
               onClick={startCamera}
-              className="w-full px-6 py-4 bg-white border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/30 text-slate-900 text-base font-bold rounded-2xl transition-colors flex items-center justify-center gap-3"
+              className="w-full px-6 py-4 bg-[#F4EEDA] border border-[#D9CFB8] hover:border-[#A88B4C] hover:bg-[#FAF5E5] text-[#18181B] text-sm font-medium rounded-md transition-all flex items-center justify-center gap-3 cursor-pointer"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#A88B4C]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              Usar webcam
+              <span className="smallcaps text-xs font-semibold">Usar webcam</span>
             </button>
           </div>
         ) : (
@@ -680,12 +694,12 @@ function DiagramToCodePanel() {
             <img
               src={imagePreview}
               alt="Vista previa del diagrama"
-              className="w-full max-h-96 object-contain rounded-2xl border border-slate-200 bg-slate-50"
+              className="w-full max-h-96 object-contain rounded-md border border-[#D9CFB8] bg-[#F4EEDA]"
             />
             <button
               type="button"
               onClick={handleClear}
-              className="absolute top-3 right-3 px-3 py-1.5 bg-slate-900/80 hover:bg-slate-900 text-white text-xs font-bold rounded-xl backdrop-blur"
+              className="absolute top-3 right-3 px-3 py-1.5 bg-[#18181B]/85 hover:bg-[#18181B] text-[#EFE8D6] text-[10px] smallcaps font-semibold rounded backdrop-blur cursor-pointer"
             >
               Quitar
             </button>
@@ -693,10 +707,10 @@ function DiagramToCodePanel() {
         )}
       </section>
 
-      <section className="bg-white rounded-[3rem] p-10 border border-slate-100 shadow-sm space-y-6">
+      <section className="gallery-card rounded-md p-10 space-y-6">
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-2">
-            Paso 2 — Elige el lenguaje destino
+          <div className="text-[10px] smallcaps text-[#A88B4C] mb-2 font-semibold">
+            <span className="catalog-num not-italic mr-2">II.</span> Elige el lenguaje destino
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -705,10 +719,10 @@ function DiagramToCodePanel() {
               key={lang}
               type="button"
               onClick={() => setLanguage(lang)}
-              className={`px-4 py-2 rounded-2xl text-sm font-bold transition-colors ${
+              className={`px-4 py-2 rounded text-sm font-medium transition-all cursor-pointer border ${
                 language === lang
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-[#18181B] text-[#EFE8D6] border-[#18181B]'
+                  : 'bg-[#F4EEDA] text-[#3A3935] border-[#D9CFB8] hover:border-[#A88B4C] hover:bg-[#FAF5E5]'
               }`}
             >
               {TARGET_LANGUAGE_LABELS[lang]}
@@ -719,86 +733,86 @@ function DiagramToCodePanel() {
           type="button"
           onClick={handleAnalyze}
           disabled={!imageFile || loading}
-          className="w-full px-6 py-4 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-base font-black rounded-2xl transition-colors shadow-lg shadow-slate-200"
+          className="w-full px-6 py-4 bg-[#18181B] hover:bg-[#3A3935] disabled:bg-[#D9CFB8] disabled:cursor-not-allowed text-[#EFE8D6] text-sm font-semibold smallcaps rounded transition-colors cursor-pointer"
         >
           {loading ? 'Analizando diagrama…' : 'Generar código'}
         </button>
       </section>
 
       {error && (
-        <div className="bg-rose-50 border-2 border-rose-100 p-6 rounded-[2rem] text-rose-700 font-medium">
-          ⚠️ {error}
+        <div className="bg-[#F3DAD3]/40 border border-[#B0584C]/30 p-6 rounded-md text-[#B0584C] font-medium">
+          — {error}
         </div>
       )}
 
       {loading && (
-        <div className="bg-white rounded-[3rem] p-10 border border-slate-100 shadow-sm flex items-center gap-4">
+        <div className="gallery-card rounded-md p-10 flex items-center gap-4">
           <div className="flex gap-1.5">
-            <span className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce [animation-delay:-0.3s]" />
-            <span className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce [animation-delay:-0.15s]" />
-            <span className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" />
+            <span className="w-2 h-2 bg-[#A88B4C] rounded-full animate-bounce [animation-delay:-0.3s]" />
+            <span className="w-2 h-2 bg-[#A88B4C] rounded-full animate-bounce [animation-delay:-0.15s]" />
+            <span className="w-2 h-2 bg-[#A88B4C] rounded-full animate-bounce" />
           </div>
-          <p className="text-slate-700 font-medium">Gemini está leyendo tu diagrama…</p>
+          <p className="text-[#3A3935] serif italic">Gemini está leyendo tu diagrama…</p>
         </div>
       )}
 
       {result && (
         <div className="space-y-6">
-          <section className="bg-indigo-50/60 border border-indigo-100 rounded-[2.5rem] p-8">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-700 mb-2">
+          <section className="gallery-card rounded-md p-10">
+            <div className="text-[10px] smallcaps text-[#A88B4C] mb-3 font-semibold">
               Qué entendí del diagrama
             </div>
-            <p className="text-slate-800 leading-relaxed whitespace-pre-line">{result.interpretacion}</p>
+            <p className="serif text-lg text-[#18181B] leading-relaxed whitespace-pre-line">{result.interpretacion}</p>
           </section>
 
-          <section className="bg-slate-950 rounded-[2.5rem] overflow-hidden border border-slate-800">
-            <div className="px-6 py-4 flex items-center justify-between border-b border-slate-800">
+          <section className="rounded-md overflow-hidden border border-[#3A3935] bg-[#18181B] shadow-[0_12px_32px_-16px_rgba(24,24,27,0.3)]">
+            <div className="px-6 py-4 flex items-center justify-between border-b border-[#3A3935] bg-[#18181B]">
               <div className="flex items-center gap-3">
-                <span className="text-indigo-400 font-mono text-xs font-bold tracking-widest uppercase">
+                <span className="text-[#C9AE74] font-mono text-[10px] smallcaps font-semibold">
                   Código · {result.lenguaje_detectado}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={handleCopy}
-                className="px-4 py-1.5 bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-bold rounded-xl transition-colors"
+                className="px-4 py-1.5 bg-transparent border border-[#C9AE74]/40 hover:border-[#C9AE74] hover:bg-[#C9AE74]/10 text-[#C9AE74] text-[10px] smallcaps font-semibold rounded transition-colors cursor-pointer"
               >
                 {copied ? '¡Copiado!' : 'Copiar'}
               </button>
             </div>
-            <pre className="p-6 text-sm font-mono text-slate-100 overflow-x-auto whitespace-pre">
+            <pre className="p-6 text-sm font-mono text-[#EFE8D6] overflow-x-auto whitespace-pre">
               {result.codigo || '// Sin código generado'}
             </pre>
           </section>
 
           {(codeMapLoading || codeMap || codeMapError) && (
-            <section className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-              <div className="bg-gradient-to-r from-indigo-50 to-white px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+            <section className="gallery-card rounded-md overflow-hidden">
+              <div className="bg-[#F4EEDA] px-8 py-5 border-b border-[#E5DDC9] flex items-center justify-between">
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-700 mb-1">
+                  <div className="text-[10px] smallcaps text-[#A88B4C] mb-1 font-semibold">
                     Mapa del código
                   </div>
-                  <p className="text-sm text-slate-600">Qué hace cada parte del código que se acaba de generar.</p>
+                  <p className="text-sm text-[#6B6357] serif italic">Qué hace cada parte del código que se acaba de generar.</p>
                 </div>
                 {codeMapLoading && (
                   <div className="flex gap-1.5">
-                    <span className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                    <span className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                    <span className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" />
+                    <span className="w-2 h-2 bg-[#A88B4C] rounded-full animate-bounce [animation-delay:-0.3s]" />
+                    <span className="w-2 h-2 bg-[#A88B4C] rounded-full animate-bounce [animation-delay:-0.15s]" />
+                    <span className="w-2 h-2 bg-[#A88B4C] rounded-full animate-bounce" />
                   </div>
                 )}
               </div>
-              <div className="p-8 space-y-5">
+              <div className="p-8 space-y-6">
                 {codeMapLoading && !codeMap && (
-                  <p className="text-slate-500 text-sm">Generando explicación paso a paso del código…</p>
+                  <p className="text-[#6B6357] text-sm serif italic">Componiendo explicación paso a paso del código…</p>
                 )}
                 {codeMapError && (
-                  <div className="text-rose-700 text-sm bg-rose-50 border border-rose-100 rounded-xl p-3">
-                    ⚠️ {codeMapError}
+                  <div className="text-[#B0584C] text-sm bg-[#F3DAD3]/40 border border-[#B0584C]/30 rounded p-3 flex items-center gap-3">
+                    <span>— {codeMapError}</span>
                     <button
                       type="button"
                       onClick={() => result && fetchCodeMap(result.codigo, language, result.interpretacion)}
-                      className="ml-3 px-3 py-1 bg-rose-600 text-white text-xs font-bold rounded-lg hover:bg-rose-700"
+                      className="px-3 py-1 bg-[#B0584C] text-white text-[10px] smallcaps font-semibold rounded hover:bg-[#9a4d42] cursor-pointer"
                     >
                       Reintentar
                     </button>
@@ -810,16 +824,16 @@ function DiagramToCodePanel() {
           )}
 
           {(result.supuestos.length > 0 || result.advertencias.length > 0) && (
-            <section className="bg-amber-50 border border-amber-200 rounded-[2.5rem] p-8 space-y-5">
+            <section className="gallery-card rounded-md p-8 space-y-5 border-l-2 border-l-[#A88B4C]">
               {result.supuestos.length > 0 && (
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-amber-700 mb-2">
+                  <div className="text-[10px] smallcaps text-[#A88B4C] mb-3 font-semibold">
                     Supuestos que tuve que hacer
                   </div>
-                  <ul className="space-y-1.5">
+                  <ul className="space-y-2">
                     {result.supuestos.map((s, i) => (
-                      <li key={i} className="flex items-start gap-2 text-amber-900 text-sm">
-                        <span className="text-amber-500 mt-1">●</span>
+                      <li key={i} className="flex items-start gap-3 text-[#3A3935] text-sm">
+                        <span className="catalog-num text-xs mt-0.5 shrink-0">{String(i + 1).padStart(2, '0')}</span>
                         <span>{s}</span>
                       </li>
                     ))}
@@ -828,20 +842,20 @@ function DiagramToCodePanel() {
               )}
               {result.advertencias.length > 0 && (
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-amber-700 mb-2">
+                  <div className="text-[10px] smallcaps text-[#A88B4C] mb-3 font-semibold">
                     Advertencias
                   </div>
-                  <ul className="space-y-1.5">
+                  <ul className="space-y-2">
                     {result.advertencias.map((s, i) => (
-                      <li key={i} className="flex items-start gap-2 text-amber-900 text-sm">
-                        <span className="text-amber-500 mt-1">⚠</span>
+                      <li key={i} className="flex items-start gap-3 text-[#3A3935] text-sm">
+                        <span className="text-[#A88B4C] mt-0.5 shrink-0">—</span>
                         <span>{s}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
               )}
-              <p className="text-xs text-amber-700/70 italic pt-2 border-t border-amber-200">
+              <p className="text-xs text-[#8B8275] serif italic pt-3 border-t border-[#E5DDC9]">
                 El código es un borrador generado a partir de la imagen. Revísalo antes de usarlo.
               </p>
             </section>
@@ -1037,30 +1051,33 @@ function App() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-16 font-sans antialiased text-slate-900">
-      <header className="text-center mb-16">
-        <div className="inline-block px-4 py-1.5 mb-6 text-sm font-bold tracking-widest text-indigo-600 uppercase bg-indigo-50 rounded-full">
-          Hackathon Edition v2.0
+    <div className="max-w-5xl mx-auto px-6 py-20 font-sans antialiased text-[#18181B]">
+      <header className="text-center mb-20">
+        <div className="inline-flex items-center gap-3 mb-8">
+          <span className="h-px w-12 bg-[#A88B4C]" />
+          <span className="text-[10px] smallcaps text-[#A88B4C] font-semibold">— Architecture · Visualizer · MMXXVI —</span>
+          <span className="h-px w-12 bg-[#A88B4C]" />
         </div>
-        <h1 className="text-8xl font-black tracking-tighter mb-6 bg-gradient-to-br from-slate-900 via-indigo-950 to-indigo-900 bg-clip-text text-transparent">
+        <h1 className="serif text-7xl md:text-8xl font-medium tracking-tight mb-8 text-[#18181B] leading-none">
           VibeMap
         </h1>
-        <p className="text-2xl text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed">
+        <p className="serif italic text-xl md:text-2xl text-[#3A3935] max-w-2xl mx-auto leading-relaxed">
           ¿Codex o Claude te generó código y no entiendes qué hace?
-          <br />
+        </p>
+        <p className="text-base text-[#6B6357] max-w-xl mx-auto mt-3 leading-relaxed">
           Súbelo y te lo explico como mapa mental, en palabras simples.
         </p>
       </header>
 
-      <div className="flex justify-center mb-12">
-        <div className="inline-flex bg-slate-100 p-1.5 rounded-2xl">
+      <div className="flex justify-center mb-16">
+        <div className="inline-flex border-b border-[#D9CFB8] gap-12">
           <button
             type="button"
             onClick={() => setActiveTab('mapa')}
-            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-colors ${
+            className={`pb-3 text-sm smallcaps font-semibold transition-all border-b-2 -mb-px cursor-pointer ${
               activeTab === 'mapa'
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-slate-500 hover:text-slate-700'
+                ? 'text-[#18181B] border-[#A88B4C]'
+                : 'text-[#8B8275] border-transparent hover:text-[#3A3935]'
             }`}
           >
             Mapa de proyecto
@@ -1068,10 +1085,10 @@ function App() {
           <button
             type="button"
             onClick={() => setActiveTab('diagrama')}
-            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-colors ${
+            className={`pb-3 text-sm smallcaps font-semibold transition-all border-b-2 -mb-px cursor-pointer ${
               activeTab === 'diagrama'
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-slate-500 hover:text-slate-700'
+                ? 'text-[#18181B] border-[#A88B4C]'
+                : 'text-[#8B8275] border-transparent hover:text-[#3A3935]'
             }`}
           >
             Diagrama → Código
@@ -1088,20 +1105,20 @@ function App() {
         <section
           {...getRootProps()}
           className={`
-            relative group border-2 border-dashed rounded-[3rem] p-20 text-center transition-all duration-700
+            gallery-card relative group border border-dashed rounded-md p-20 text-center transition-all duration-300 cursor-pointer
             ${
               isDragActive
-                ? 'border-indigo-600 bg-indigo-50/30 scale-[1.01] ring-8 ring-indigo-50'
-                : 'border-slate-200 bg-white hover:border-indigo-400 hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)]'
+                ? 'border-[#A88B4C] bg-[#F4EFE0] scale-[1.005]'
+                : 'border-[#D9CFB8] hover:border-[#A88B4C] hover:bg-[#F4EEDA]'
             }
           `}
         >
           <input {...getInputProps()} />
           <div className="space-y-6">
-            <div className="w-24 h-24 bg-slate-900 text-white rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-2xl group-hover:scale-110 transition-transform duration-500">
+            <div className="w-20 h-20 bg-[#F4EEDA] border border-[#A88B4C]/40 text-[#A88B4C] rounded-full flex items-center justify-center mx-auto mb-6 group-hover:border-[#A88B4C] transition-all duration-500">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-12 w-12"
+                className="h-9 w-9"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -1114,9 +1131,9 @@ function App() {
                 />
               </svg>
             </div>
-            <div className="space-y-2">
-              <p className="text-3xl font-black tracking-tight text-slate-900">Suelta tu carpeta de proyecto</p>
-              <p className="text-slate-400 text-lg font-medium">
+            <div className="space-y-3">
+              <p className="serif text-3xl text-[#18181B] tracking-tight">Suelta tu carpeta de proyecto</p>
+              <p className="text-[#6B6357] text-sm leading-relaxed max-w-md mx-auto">
                 Funciona con código de cualquier IA: React, Python, Godot, Unity, C++, etc.
               </p>
             </div>
@@ -1124,22 +1141,22 @@ function App() {
         </section>
 
         {loading && (
-          <div className="bg-white rounded-[3rem] p-12 shadow-xl border border-slate-100 space-y-6">
+          <div className="gallery-card rounded-md p-10 space-y-6">
             <div className="flex items-center gap-4">
               <div className="flex space-x-2">
-                <div className="w-3 h-3 bg-indigo-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                <div className="w-3 h-3 bg-indigo-600 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                <div className="w-3 h-3 bg-indigo-600 rounded-full animate-bounce"></div>
+                <div className="w-2.5 h-2.5 bg-[#A88B4C] rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                <div className="w-2.5 h-2.5 bg-[#A88B4C] rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                <div className="w-2.5 h-2.5 bg-[#A88B4C] rounded-full animate-bounce"></div>
               </div>
               <div>
-                <p className="text-xl font-black text-slate-900">
-                  Mapeando {fileCount} archivos…
+                <p className="serif text-xl text-[#18181B]">
+                  Componiendo el mapa de {fileCount} archivos…
                 </p>
-                <p className="text-slate-500 text-sm font-medium">Gemini está armando el mapa general.</p>
+                <p className="text-[#6B6357] text-sm italic serif">Gemini está armando el mapa general.</p>
               </div>
             </div>
             {streamingText && (
-              <pre className="text-xs font-mono text-slate-400 bg-slate-50 p-4 rounded-2xl overflow-hidden max-h-40 whitespace-pre-wrap">
+              <pre className="text-xs font-mono text-[#8B8275] bg-[#F4EEDA] border border-[#E5DDC9] p-4 rounded overflow-hidden max-h-40 whitespace-pre-wrap">
                 {streamingText.slice(-1200)}
               </pre>
             )}
@@ -1147,23 +1164,23 @@ function App() {
         )}
 
         {error && (
-          <div className="bg-rose-50 border-2 border-rose-100 p-8 rounded-[2.5rem] flex items-center justify-between gap-5">
+          <div className="bg-[#F3DAD3]/40 border border-[#B0584C]/30 p-8 rounded-md flex items-center justify-between gap-5">
             <div className="flex items-center gap-5">
-              <div className="bg-rose-500 text-white p-3 rounded-2xl shadow-lg shadow-rose-200 shrink-0">
-                <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <div className="bg-[#B0584C]/15 border border-[#B0584C]/30 text-[#B0584C] p-3 rounded shrink-0">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div>
-                <p className="text-xl font-black text-rose-950">Algo falló</p>
-                <p className="text-rose-700 font-medium">{error}</p>
+                <p className="serif text-xl text-[#B0584C]">Algo falló</p>
+                <p className="text-[#B0584C]/80 text-sm">{error}</p>
               </div>
             </div>
             {files.length > 0 && (
               <button
                 type="button"
                 onClick={handleRetry}
-                className="shrink-0 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold rounded-2xl transition-colors shadow-md shadow-rose-200"
+                className="shrink-0 px-5 py-2.5 bg-[#B0584C] hover:bg-[#9a4d42] text-[#EFE8D6] text-[10px] smallcaps font-semibold rounded transition-colors cursor-pointer"
               >
                 Reintentar
               </button>
@@ -1173,44 +1190,38 @@ function App() {
 
         {overview && (
           <>
-            <section className="bg-white rounded-[3rem] shadow-[0_30px_60px_-16px_rgba(0,0,0,0.08)] border border-slate-50 overflow-hidden">
-              <div className="bg-slate-950 px-10 py-6 flex items-center justify-between">
+            <section className="gallery-card rounded-md overflow-hidden">
+              <div className="bg-[#18181B] px-10 py-5 flex items-center justify-between border-b border-[#3A3935]">
                 <div className="flex items-center gap-4">
-                  <div className="flex space-x-2">
-                    <div className="w-3 h-3 rounded-full bg-slate-800"></div>
-                    <div className="w-3 h-3 rounded-full bg-slate-800"></div>
-                    <div className="w-3 h-3 rounded-full bg-slate-800"></div>
-                  </div>
-                  <div className="h-6 w-px bg-slate-800 mx-2"></div>
-                  <span className="text-indigo-400 font-mono text-xs font-bold tracking-[0.4em] uppercase">
-                    Mapa General
+                  <span className="text-[#C9AE74] font-mono text-[10px] smallcaps font-semibold">
+                    — Sala I · Mapa General —
                   </span>
                 </div>
-                <div className="px-3 py-1 bg-indigo-500/10 rounded-full border border-indigo-500/20">
-                  <span className="text-indigo-400 text-xs font-black uppercase tracking-widest">
+                <div className="px-3 py-1 border border-[#C9AE74]/30 rounded">
+                  <span className="text-[#C9AE74] text-[10px] smallcaps font-semibold">
                     {fileCount} archivos
                   </span>
                 </div>
               </div>
-              <div className="p-10 space-y-8">
+              <div className="p-10 space-y-10">
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-2">
+                  <div className="text-[10px] smallcaps text-[#A88B4C] mb-3 font-semibold">
                     De qué va el proyecto
                   </div>
-                  <p className="text-2xl text-slate-800 leading-relaxed font-medium">{overview.resumen}</p>
+                  <p className="serif text-2xl text-[#18181B] leading-relaxed">{overview.resumen}</p>
                 </div>
                 {overview.estructura_general && (
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-2">
+                    <div className="text-[10px] smallcaps text-[#A88B4C] mb-3 font-semibold">
                       Estructura general
                     </div>
-                    <p className="text-base text-slate-700 font-mono bg-slate-100/60 inline-block px-4 py-2 rounded-xl">
+                    <p className="text-base text-[#3A3935] font-mono bg-[#F4EEDA] border border-[#E5DDC9] inline-block px-4 py-2 rounded">
                       {overview.estructura_general}
                     </p>
                   </div>
                 )}
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-2">
+                  <div className="text-[10px] smallcaps text-[#A88B4C] mb-3 font-semibold">
                     Cómo se conecta todo
                   </div>
                   <Mermaid chart={overview.diagrama_mermaid} />
@@ -1219,42 +1230,51 @@ function App() {
             </section>
 
             <section>
-              <div className="flex items-end justify-between mb-4 px-2">
-                <h2 className="text-2xl font-black tracking-tight text-slate-900">Archivos del proyecto</h2>
-                <p className="text-sm text-slate-400 font-medium">
+              <div className="flex items-end justify-between mb-6 px-1">
+                <div>
+                  <div className="text-[10px] smallcaps text-[#A88B4C] mb-1 font-semibold">— Sala II —</div>
+                  <h2 className="serif text-3xl text-[#18181B] tracking-tight">Archivos del proyecto</h2>
+                </div>
+                <p className="text-sm text-[#8B8275] serif italic">
                   Click para ver el mapa de cada uno
                 </p>
               </div>
               <div className="space-y-3">
-                {overview.archivos.map((a) => (
-                  <FileCard
-                    key={a.ruta}
-                    archivo={a}
-                    expanded={expandedPath === a.ruta}
-                    onExpand={() => handleExpandFile(a.ruta)}
-                    fileMap={fileMaps[a.ruta] ?? null}
-                    loading={!!fileMapLoading[a.ruta]}
-                    error={fileMapErrors[a.ruta] ?? null}
-                  />
+                {overview.archivos.map((a, i) => (
+                  <div key={a.ruta} className="flex items-start gap-4">
+                    <span className="catalog-num text-sm pt-7 w-8 shrink-0 text-right">
+                      {String(i + 1).padStart(2, '0')}.
+                    </span>
+                    <div className="flex-1">
+                      <FileCard
+                        archivo={a}
+                        expanded={expandedPath === a.ruta}
+                        onExpand={() => handleExpandFile(a.ruta)}
+                        fileMap={fileMaps[a.ruta] ?? null}
+                        loading={!!fileMapLoading[a.ruta]}
+                        error={fileMapErrors[a.ruta] ?? null}
+                      />
+                    </div>
+                  </div>
                 ))}
               </div>
             </section>
 
             {overview.recapitulacion && overview.recapitulacion.length > 0 && (
-              <section className="bg-gradient-to-br from-indigo-50 via-white to-indigo-50/40 rounded-[3rem] p-12 border border-indigo-100">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-700 mb-3">
-                  Para llevarte
+              <section className="gallery-card rounded-md p-12 border-l-2 border-l-[#A88B4C]">
+                <div className="text-[10px] smallcaps text-[#A88B4C] mb-3 font-semibold">
+                  — Sala III · Para llevarte —
                 </div>
-                <h2 className="text-3xl font-black tracking-tight text-slate-900 mb-6">
+                <h2 className="serif text-3xl tracking-tight text-[#18181B] mb-8 italic">
                   Si solo recuerdas {overview.recapitulacion.length === 1 ? 'una cosa' : `${overview.recapitulacion.length} cosas`}…
                 </h2>
-                <ul className="space-y-3">
+                <ul className="space-y-5">
                   {overview.recapitulacion.map((punto, i) => (
-                    <li key={i} className="flex items-start gap-4">
-                      <span className="shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white text-sm font-black flex items-center justify-center">
-                        {i + 1}
+                    <li key={i} className="flex items-start gap-5">
+                      <span className="catalog-num text-2xl shrink-0 leading-none mt-1 w-10 text-right">
+                        {String(i + 1).padStart(2, '0')}
                       </span>
-                      <p className="text-lg text-slate-800 leading-relaxed font-medium pt-0.5">{punto}</p>
+                      <p className="serif text-lg text-[#18181B] leading-relaxed pt-0.5">{punto}</p>
                     </li>
                   ))}
                 </ul>
@@ -1265,12 +1285,14 @@ function App() {
       </main>
       )}
 
-      <footer className="mt-32 text-center pb-20 space-y-4">
-        <div className="w-20 h-1 bg-slate-200 mx-auto rounded-full mb-10"></div>
-        <p className="text-slate-400 font-bold tracking-widest uppercase text-sm">
-          VibeMap Hackathon Engine &copy; 2026
+      <footer className="mt-32 text-center pb-16 space-y-4">
+        <div className="gallery-divider mb-10">
+          <span className="text-[#A88B4C] font-serif text-sm">◆</span>
+        </div>
+        <p className="text-[#6B6357] smallcaps text-[10px] font-semibold">
+          VibeMap · Anno MMXXVI
         </p>
-        <p className="text-slate-300 text-sm">Diseñado para entender código generado por IA</p>
+        <p className="text-[#8B8275] text-sm serif italic">Una galería para el código generado por IA</p>
       </footer>
     </div>
   )
