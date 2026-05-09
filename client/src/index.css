@@ -21,6 +21,7 @@
   --line-soft: #E5DDC9;
   --gold: #A88B4C;              /* muted antique gold */
   --gold-soft: #C9AE74;
+  --accent-deep: #5E3A3A;       /* warm burgundy — secondary accent for variety */
   --accent-soft: #F4EFE0;       /* used in subtle highlights */
   --rose: #B0584C;              /* muted error */
   --rose-soft: #F3DAD3;
@@ -54,18 +55,23 @@ body::before {
   mix-blend-mode: multiply;
 }
 
-/* Soft top vignette accent line */
+/* Top accent bar — split black + burgundy for editorial weight */
 body::after {
   content: '';
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
-  opacity: 0.4;
+  height: 4px;
+  background: linear-gradient(90deg,
+    var(--ink) 0%,
+    var(--ink) 70%,
+    var(--accent-deep) 70%,
+    var(--accent-deep) 88%,
+    var(--gold) 88%,
+    var(--gold) 100%);
   pointer-events: none;
-  z-index: 1;
+  z-index: 50;
 }
 
 #root {

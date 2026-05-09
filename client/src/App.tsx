@@ -1053,14 +1053,14 @@ function App() {
   return (
     <div className="max-w-5xl mx-auto px-6 py-20 font-sans antialiased text-[#18181B]">
       <header className="text-center mb-20">
-        <div className="inline-flex items-center gap-3 mb-8">
-          <span className="h-px w-12 bg-[#A88B4C]" />
-          <span className="text-[10px] smallcaps text-[#A88B4C] font-semibold">— Architecture · Visualizer · MMXXVI —</span>
-          <span className="h-px w-12 bg-[#A88B4C]" />
-        </div>
-        <h1 className="serif text-7xl md:text-8xl font-medium tracking-tight mb-8 text-[#18181B] leading-none">
-          VibeMap
+        <h1 className="serif text-7xl md:text-8xl font-medium tracking-tight mb-6 text-[#18181B] leading-none">
+          Vibe<span className="text-[#5E3A3A]">M</span>ap
         </h1>
+        <div className="flex items-center justify-center gap-3 mb-8" aria-hidden="true">
+          <span className="h-px w-10 bg-[#18181B]" />
+          <span className="text-[#A88B4C] text-base">❖</span>
+          <span className="h-px w-10 bg-[#18181B]" />
+        </div>
         <p className="serif italic text-xl md:text-2xl text-[#3A3935] max-w-2xl mx-auto leading-relaxed">
           ¿Codex o Claude te generó código y no entiendes qué hace?
         </p>
@@ -1289,9 +1289,6 @@ function App() {
         <div className="gallery-divider mb-10">
           <span className="text-[#A88B4C] font-serif text-sm">◆</span>
         </div>
-        <p className="text-[#6B6357] smallcaps text-[10px] font-semibold">
-          VibeMap · Anno MMXXVI
-        </p>
         <p className="text-[#8B8275] text-sm serif italic">Una galería para el código generado por IA</p>
       </footer>
     </div>
