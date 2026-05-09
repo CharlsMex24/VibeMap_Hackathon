@@ -68,39 +68,382 @@ const TARGET_LANGUAGE_LABELS: Record<TargetLanguage, string> = {
   cpp: 'C++',
 }
 
+type ParsedNode = { id: string; label: string }
+type ParsedEdge = { from: string; label: string; to: string }
+
+function parseMermaidSource(chart: string): { nodes: ParsedNode[]; edges: ParsedEdge[] } {
+  const nodeMap = new Map<string, string>()
+  const edges: ParsedEdge[] = []
+
+  const nodeRe = /\b([A-Za-z_][\w]*)\s*[\[\(\{][\(\{>]?([^\]\)\}>]+)[\]\)\}]/g
+  const edgeRe = /\b([A-Za-z_][\w]*)\s*[-=.]+>\s*(?:\|([^|]+)\|\s*)?([A-Za-z_][\w]*)\b/g
+
+  for (const rawLine of chart.split('\n')) {
+    const line = rawLine.trim()
+    if (!line || line.startsWith('%%')) continue
+    if (/^(graph|flowchart|subgraph|end|classDef|class|click|style|linkStyle)\b/.test(line)) continue
+
+    nodeRe.lastIndex = 0
+    let nm: RegExpExecArray | null
+    while ((nm = nodeRe.exec(line)) !== null) {
+      const id = nm[1]!
+      const label = nm[2]!.trim()
+      if (!nodeMap.has(id)) nodeMap.set(id, label)
+    }
+
+    edgeRe.lastIndex = 0
+    let em: RegExpExecArray | null
+    while ((em = edgeRe.exec(line)) !== null) {
+      edges.push({ from: em[1]!, label: (em[2] ?? '').trim(), to: em[3]! })
+    }
+  }
+
+  // Auto-include node IDs that appear in edges but never got an explicit label
+  for (const e of edges) {
+    if (!nodeMap.has(e.from)) nodeMap.set(e.from, e.from)
+    if (!nodeMap.has(e.to)) nodeMap.set(e.to, e.to)
+  }
+
+  const nodes = Array.from(nodeMap.entries()).map(([id, label]) => ({ id, label }))
+  return { nodes, edges }
+}
+
+function StepByStepDiagram({ chart }: { chart: string }) {
+  const { nodes, edges } = useMemo(() => parseMermaidSource(chart), [chart])
+  const labelOf = useMemo(() => new Map(nodes.map((n) => [n.id, n.label])), [nodes])
+
+  const edgesBySource = useMemo(() => {
+    const map = new Map<string, ParsedEdge[]>()
+    for (const e of edges) {
+      if (!map.has(e.from)) map.set(e.from, [])
+      map.get(e.from)!.push(e)
+    }
+    return map
+  }, [edges])
+
+  const orderedSources = useMemo(() => {
+    const seen = new Set<string>()
+    const order: string[] = []
+    for (const e of edges) {
+      if (!seen.has(e.from)) {
+        seen.add(e.from)
+        order.push(e.from)
+      }
+    }
+    return order
+  }, [edges])
+
+  if (nodes.length === 0) {
+    return (
+      <div className="p-6 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-600 text-center">
+        No se pudo extraer ningún paso del diagrama.
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-3">
+          Pasos / componentes
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {nodes.map((n, i) => (
+            <div
+              key={n.id}
+              className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-100 hover:border-indigo-200 transition-colors"
+            >
+              <span className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center justify-center shrink-0">
+                {i + 1}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="font-mono text-[10px] text-slate-400 uppercase tracking-wider">{n.id}</div>
+                <div className="font-medium text-slate-800 text-sm break-words">{n.label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {edges.length > 0 && (
+        <div>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-3">
+            Conexiones paso a paso
+          </div>
+          <div className="space-y-3">
+            {orderedSources.map((source) => {
+              const sourceEdges = edgesBySource.get(source) ?? []
+              return (
+                <div key={source} className="bg-white rounded-2xl border border-slate-100 p-5">
+                  <div className="flex items-baseline gap-2 mb-3 flex-wrap">
+                    <span className="font-bold text-slate-800">{labelOf.get(source) ?? source}</span>
+                    <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider">{source}</span>
+                  </div>
+                  <ul className="space-y-2">
+                    {sourceEdges.map((e, i) => (
+                      <li key={i} className="flex items-start gap-3 text-sm leading-relaxed">
+                        <span className="text-indigo-500 font-bold mt-0.5 shrink-0">→</span>
+                        <span className="text-slate-700 flex-1">
+                          {e.label && (
+                            <span className="inline-block bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md text-xs font-medium mr-2 mb-0.5">
+                              {e.label}
+                            </span>
+                          )}
+                          <span className="font-medium text-slate-800">{labelOf.get(e.to) ?? e.to}</span>
+                          <span className="font-mono text-[10px] text-slate-400 ml-2">{e.to}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function unlockSvgSize(container: HTMLElement | null) {
+  if (!container) return
+  const svg = container.querySelector('svg')
+  if (!svg) return
+  svg.removeAttribute('style')
+  svg.style.maxWidth = 'none'
+  svg.style.height = 'auto'
+  svg.style.display = 'block'
+}
+
+function MermaidFullscreen({ chart, onClose }: { chart: string; onClose: () => void }) {
+  const stageRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [zoom, setZoom] = useState(1)
+  const dragState = useRef<{ active: boolean; x: number; y: number; sl: number; st: number }>({
+    active: false,
+    x: 0,
+    y: 0,
+    sl: 0,
+    st: 0,
+  })
+
+  useEffect(() => {
+    if (!stageRef.current || !chart) return
+    const id = `mermaid-fs-${crypto.randomUUID()}`
+    mermaid
+      .render(id, chart)
+      .then(({ svg }) => {
+        if (stageRef.current) {
+          stageRef.current.innerHTML = svg
+          unlockSvgSize(stageRef.current)
+        }
+      })
+      .catch(() => {})
+  }, [chart])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+      if (e.key === '+' || (e.key === '=' && e.shiftKey === false)) setZoom((z) => Math.min(4, z + 0.2))
+      if (e.key === '-') setZoom((z) => Math.max(0.25, z - 0.2))
+      if (e.key === '0') setZoom(1)
+    }
+    window.addEventListener('keydown', onKey)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [onClose])
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return
+    dragState.current = {
+      active: true,
+      x: e.clientX,
+      y: e.clientY,
+      sl: scrollRef.current.scrollLeft,
+      st: scrollRef.current.scrollTop,
+    }
+    if (scrollRef.current) scrollRef.current.style.cursor = 'grabbing'
+  }
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!dragState.current.active || !scrollRef.current) return
+    scrollRef.current.scrollLeft = dragState.current.sl - (e.clientX - dragState.current.x)
+    scrollRef.current.scrollTop = dragState.current.st - (e.clientY - dragState.current.y)
+  }
+  const stopDrag = () => {
+    dragState.current.active = false
+    if (scrollRef.current) scrollRef.current.style.cursor = 'grab'
+  }
+
+  const onWheel = (e: React.WheelEvent) => {
+    if (!e.ctrlKey) return
+    e.preventDefault()
+    setZoom((z) => Math.max(0.25, Math.min(4, z + (e.deltaY < 0 ? 0.15 : -0.15))))
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-900/95 flex flex-col">
+      <div className="flex items-center justify-between px-6 py-3 bg-slate-950 text-white border-b border-slate-800">
+        <span className="font-bold text-sm tracking-widest uppercase text-indigo-300">Diagrama ampliado</span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setZoom((z) => Math.max(0.25, z - 0.2))}
+            className="w-9 h-9 bg-slate-800 hover:bg-slate-700 rounded-lg font-bold text-lg"
+            title="Alejar (-)"
+          >
+            −
+          </button>
+          <span className="text-sm font-mono w-16 text-center text-slate-300">{Math.round(zoom * 100)}%</span>
+          <button
+            type="button"
+            onClick={() => setZoom((z) => Math.min(4, z + 0.2))}
+            className="w-9 h-9 bg-slate-800 hover:bg-slate-700 rounded-lg font-bold text-lg"
+            title="Acercar (+)"
+          >
+            +
+          </button>
+          <button
+            type="button"
+            onClick={() => setZoom(1)}
+            className="px-3 h-9 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold"
+            title="Tamaño real (0)"
+          >
+            100%
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="ml-3 px-4 h-9 bg-rose-600 hover:bg-rose-500 rounded-lg text-sm font-bold"
+            title="Cerrar (Esc)"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+      <div
+        ref={scrollRef}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={stopDrag}
+        onMouseLeave={stopDrag}
+        onWheel={onWheel}
+        className="flex-1 overflow-auto bg-white select-none"
+        style={{ cursor: 'grab' }}
+      >
+        <div
+          ref={stageRef}
+          className="p-12 inline-block"
+          style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}
+        />
+      </div>
+      <div className="px-6 py-2 bg-slate-950 text-slate-400 text-xs text-center border-t border-slate-800">
+        Arrastra para mover · Ctrl + rueda para zoom · Esc para cerrar
+      </div>
+    </div>
+  )
+}
+
 const Mermaid = ({ chart }: { chart: string }) => {
   const ref = useRef<HTMLDivElement>(null)
   const [renderError, setRenderError] = useState<string | null>(null)
+  const [fullscreen, setFullscreen] = useState(false)
+  const [view, setView] = useState<'visual' | 'pasos'>('visual')
 
   useEffect(() => {
+    if (view !== 'visual') return
     if (!ref.current || !chart) return
     setRenderError(null)
     const id = `mermaid-${crypto.randomUUID()}`
     mermaid
       .render(id, chart)
       .then(({ svg }) => {
-        if (ref.current) ref.current.innerHTML = svg
+        if (ref.current) {
+          ref.current.innerHTML = svg
+          unlockSvgSize(ref.current)
+        }
       })
       .catch((err) => {
         console.error('Mermaid render error:', err)
-        setRenderError('Sintaxis inválida en el diagrama')
+        setRenderError('No se pudo renderizar el diagrama. Mira la versión paso a paso debajo.')
       })
-  }, [chart])
+  }, [chart, view])
+
+  const ViewToggle = (
+    <div className="inline-flex bg-slate-100 p-1 rounded-xl">
+      <button
+        type="button"
+        onClick={() => setView('visual')}
+        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+          view === 'visual' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+        }`}
+      >
+        Visual
+      </button>
+      <button
+        type="button"
+        onClick={() => setView('pasos')}
+        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+          view === 'pasos' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+        }`}
+      >
+        Paso a paso
+      </button>
+    </div>
+  )
+
+  if (view === 'pasos') {
+    return (
+      <div className="my-6 bg-slate-50/60 rounded-3xl border border-slate-100 p-6">
+        <div className="flex items-center justify-end mb-4">{ViewToggle}</div>
+        <StepByStepDiagram chart={chart} />
+      </div>
+    )
+  }
 
   if (renderError) {
     return (
-      <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-sm font-mono text-amber-700">
-        ⚠️ {renderError}
-        <pre className="mt-2 text-xs whitespace-pre-wrap text-amber-900/70">{chart}</pre>
+      <div className="my-6 bg-slate-50/60 rounded-3xl border border-slate-100 p-6">
+        <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+          <div className="text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-1.5">
+            ⚠️ {renderError}
+          </div>
+          {ViewToggle}
+        </div>
+        <StepByStepDiagram chart={chart} />
       </div>
     )
   }
 
   return (
-    <div
-      ref={ref}
-      className="flex justify-center my-6 overflow-x-auto p-4 bg-white rounded-3xl border border-slate-100 shadow-sm"
-    />
+    <>
+      <div className="relative my-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+          {ViewToggle}
+          <button
+            type="button"
+            onClick={() => setFullscreen(true)}
+            className="px-3 py-1.5 bg-slate-900/85 hover:bg-slate-900 text-white text-xs font-bold rounded-xl backdrop-blur flex items-center gap-1.5"
+            title="Ver en pantalla completa"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+            Ampliar
+          </button>
+        </div>
+        <div className="overflow-auto p-4 pt-16 max-h-[480px]">
+          <div ref={ref} className="inline-block min-w-full" />
+        </div>
+        <div className="px-4 pb-3 text-[11px] text-slate-400 text-center">
+          Arrastra horizontalmente o pulsa <span className="font-bold">Ampliar</span> para verlo en grande
+        </div>
+      </div>
+      {fullscreen && <MermaidFullscreen chart={chart} onClose={() => setFullscreen(false)} />}
+    </>
   )
 }
 
