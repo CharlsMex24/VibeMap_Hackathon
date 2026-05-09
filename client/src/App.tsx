@@ -144,21 +144,21 @@ function StepByStepDiagram({ chart }: { chart: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-3">
+        <div className="text-xs font-bold uppercase tracking-widest text-indigo-600 mb-3">
           Pasos / componentes
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {nodes.map((n, i) => (
             <div
               key={n.id}
-              className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-100 hover:border-indigo-200 transition-colors"
+              className="flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-100 hover:border-indigo-200 transition-colors"
             >
-              <span className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center justify-center shrink-0">
+              <span className="w-9 h-9 rounded-full bg-indigo-100 text-indigo-700 text-sm font-bold flex items-center justify-center shrink-0">
                 {i + 1}
               </span>
               <div className="min-w-0 flex-1">
-                <div className="font-mono text-[10px] text-slate-400 uppercase tracking-wider">{n.id}</div>
-                <div className="font-medium text-slate-800 text-sm break-words">{n.label}</div>
+                <div className="font-mono text-xs text-slate-400 uppercase tracking-wider mb-0.5">{n.id}</div>
+                <div className="font-semibold text-slate-800 text-base break-words leading-snug">{n.label}</div>
               </div>
             </div>
           ))}
@@ -167,7 +167,7 @@ function StepByStepDiagram({ chart }: { chart: string }) {
 
       {edges.length > 0 && (
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-3">
+          <div className="text-xs font-bold uppercase tracking-widest text-indigo-600 mb-3">
             Conexiones paso a paso
           </div>
           <div className="space-y-3">
@@ -176,21 +176,21 @@ function StepByStepDiagram({ chart }: { chart: string }) {
               return (
                 <div key={source} className="bg-white rounded-2xl border border-slate-100 p-5">
                   <div className="flex items-baseline gap-2 mb-3 flex-wrap">
-                    <span className="font-bold text-slate-800">{labelOf.get(source) ?? source}</span>
-                    <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider">{source}</span>
+                    <span className="font-bold text-slate-900 text-base">{labelOf.get(source) ?? source}</span>
+                    <span className="font-mono text-xs text-slate-400 uppercase tracking-wider">{source}</span>
                   </div>
-                  <ul className="space-y-2">
+                  <ul className="space-y-2.5">
                     {sourceEdges.map((e, i) => (
-                      <li key={i} className="flex items-start gap-3 text-sm leading-relaxed">
+                      <li key={i} className="flex items-start gap-3 text-base leading-relaxed">
                         <span className="text-indigo-500 font-bold mt-0.5 shrink-0">→</span>
                         <span className="text-slate-700 flex-1">
                           {e.label && (
-                            <span className="inline-block bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md text-xs font-medium mr-2 mb-0.5">
+                            <span className="inline-block bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-md text-sm font-medium mr-2 mb-0.5">
                               {e.label}
                             </span>
                           )}
-                          <span className="font-medium text-slate-800">{labelOf.get(e.to) ?? e.to}</span>
-                          <span className="font-mono text-[10px] text-slate-400 ml-2">{e.to}</span>
+                          <span className="font-semibold text-slate-800">{labelOf.get(e.to) ?? e.to}</span>
+                          <span className="font-mono text-xs text-slate-400 ml-2">{e.to}</span>
                         </span>
                       </li>
                     ))}
@@ -397,36 +397,42 @@ const Mermaid = ({ chart }: { chart: string }) => {
 
   if (view === 'pasos') {
     return (
-      <div className="my-6 bg-slate-50/60 rounded-3xl border border-slate-100 p-6">
-        <div className="flex items-center justify-end mb-4">{ViewToggle}</div>
-        <StepByStepDiagram chart={chart} />
+      <div className="my-6 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="flex items-center justify-end px-4 py-3 border-b border-slate-100 bg-slate-50/50">
+          {ViewToggle}
+        </div>
+        <div className="p-6">
+          <StepByStepDiagram chart={chart} />
+        </div>
       </div>
     )
   }
 
   if (renderError) {
     return (
-      <div className="my-6 bg-slate-50/60 rounded-3xl border border-slate-100 p-6">
-        <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+      <div className="my-6 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between gap-3 flex-wrap px-4 py-3 border-b border-slate-100 bg-slate-50/50">
           <div className="text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-1.5">
             ⚠️ {renderError}
           </div>
           {ViewToggle}
         </div>
-        <StepByStepDiagram chart={chart} />
+        <div className="p-6">
+          <StepByStepDiagram chart={chart} />
+        </div>
       </div>
     )
   }
 
   return (
     <>
-      <div className="relative my-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
-        <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+      <div className="my-6 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="flex items-center justify-end gap-2 px-4 py-3 border-b border-slate-100 bg-slate-50/50">
           {ViewToggle}
           <button
             type="button"
             onClick={() => setFullscreen(true)}
-            className="px-3 py-1.5 bg-slate-900/85 hover:bg-slate-900 text-white text-xs font-bold rounded-xl backdrop-blur flex items-center gap-1.5"
+            className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl flex items-center gap-1.5"
             title="Ver en pantalla completa"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -435,11 +441,11 @@ const Mermaid = ({ chart }: { chart: string }) => {
             Ampliar
           </button>
         </div>
-        <div className="overflow-auto p-4 pt-16 max-h-[480px]">
+        <div className="overflow-auto p-6 max-h-[720px]">
           <div ref={ref} className="inline-block min-w-full" />
         </div>
-        <div className="px-4 pb-3 text-[11px] text-slate-400 text-center">
-          Arrastra horizontalmente o pulsa <span className="font-bold">Ampliar</span> para verlo en grande
+        <div className="px-4 py-2.5 text-xs text-slate-400 text-center border-t border-slate-100 bg-slate-50/50">
+          Arrastra horizontalmente para ver más · pulsa <span className="font-bold">Ampliar</span> para pantalla completa
         </div>
       </div>
       {fullscreen && <MermaidFullscreen chart={chart} onClose={() => setFullscreen(false)} />}
