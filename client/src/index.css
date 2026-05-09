@@ -1,10 +1,11 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
 @plugin "@tailwindcss/typography";
 
 @theme {
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-serif: "Playfair Display", "Iowan Old Style", Georgia, serif;
+  --font-rounded: "Outfit", "Inter", system-ui, sans-serif;
 }
 
 :root {
@@ -119,6 +120,136 @@ body::after {
   font-style: italic;
   color: var(--gold);
   font-variant-numeric: oldstyle-nums;
+}
+
+/* Friendlier step header — geometric rounded sans */
+.step-label {
+  font-family: var(--font-rounded);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.step-label-num {
+  font-family: var(--font-rounded);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--accent-deep);
+  background: var(--canvas-inset);
+  border: 1px solid var(--line);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ---- Decorative corner ornaments (fixed, frame the viewport) ---- */
+.corner-ornament {
+  position: fixed;
+  width: 56px;
+  height: 56px;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.85;
+}
+.corner-ornament::before,
+.corner-ornament::after {
+  content: '';
+  position: absolute;
+  background: var(--gold);
+}
+.corner-ornament .dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--accent-deep);
+  border-radius: 9999px;
+}
+
+.corner-tl {
+  top: 28px;
+  left: 28px;
+}
+.corner-tl::before { top: 0; left: 0; width: 56px; height: 1px; }
+.corner-tl::after  { top: 0; left: 0; width: 1px; height: 56px; }
+.corner-tl .dot    { top: -3px; left: -3px; }
+
+.corner-tr {
+  top: 28px;
+  right: 28px;
+}
+.corner-tr::before { top: 0; right: 0; width: 56px; height: 1px; }
+.corner-tr::after  { top: 0; right: 0; width: 1px; height: 56px; }
+.corner-tr .dot    { top: -3px; right: -3px; }
+
+.corner-bl {
+  bottom: 28px;
+  left: 28px;
+}
+.corner-bl::before { bottom: 0; left: 0; width: 56px; height: 1px; }
+.corner-bl::after  { bottom: 0; left: 0; width: 1px; height: 56px; }
+.corner-bl .dot    { bottom: -3px; left: -3px; }
+
+.corner-br {
+  bottom: 28px;
+  right: 28px;
+}
+.corner-br::before { bottom: 0; right: 0; width: 56px; height: 1px; }
+.corner-br::after  { bottom: 0; right: 0; width: 1px; height: 56px; }
+.corner-br .dot    { bottom: -3px; right: -3px; }
+
+/* Side decorative ornament (right edge, vertical) */
+.side-ornament {
+  position: fixed;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  opacity: 0.7;
+}
+.side-ornament .mark-line {
+  width: 1px;
+  height: 60px;
+  background: var(--line);
+}
+.side-ornament .mark-square {
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--gold);
+  background: transparent;
+  transform: rotate(45deg);
+}
+.side-ornament .mark-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--accent-deep);
+  border-radius: 9999px;
+}
+.side-ornament .mark-text {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--font-rounded);
+  font-size: 9px;
+  letter-spacing: 0.4em;
+  color: var(--muted-2);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .corner-ornament { display: none; }
+  .side-ornament { display: none; }
 }
 
 /* Subtle hover for clickable rows */

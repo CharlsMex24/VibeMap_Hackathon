@@ -608,10 +608,11 @@ function DiagramToCodePanel() {
     <div className="space-y-8">
       <section className="gallery-card rounded-md p-10 space-y-6">
         <div>
-          <div className="text-[10px] smallcaps text-[#A88B4C] mb-2 font-semibold">
-            <span className="catalog-num not-italic mr-2">I.</span> Sube la foto del diagrama
+          <div className="step-label mb-2">
+            <span className="step-label-num">I</span>
+            <span>Sube la foto del diagrama</span>
           </div>
-          <p className="text-[#6B6357] text-sm leading-relaxed">
+          <p className="text-[#6B6357] text-sm leading-relaxed pl-11">
             Foto de un flowchart en papel, pizarra, o exportado de Lucidchart/Draw.io. JPG, PNG o WebP. Máx 8 MB.
           </p>
         </div>
@@ -709,8 +710,9 @@ function DiagramToCodePanel() {
 
       <section className="gallery-card rounded-md p-10 space-y-6">
         <div>
-          <div className="text-[10px] smallcaps text-[#A88B4C] mb-2 font-semibold">
-            <span className="catalog-num not-italic mr-2">II.</span> Elige el lenguaje destino
+          <div className="step-label">
+            <span className="step-label-num">II</span>
+            <span>Elige el lenguaje destino</span>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -1052,6 +1054,21 @@ function App() {
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-20 font-sans antialiased text-[#18181B]">
+      {/* Decorative frame corners */}
+      <div className="corner-ornament corner-tl" aria-hidden="true"><span className="dot" /></div>
+      <div className="corner-ornament corner-tr" aria-hidden="true"><span className="dot" /></div>
+      <div className="corner-ornament corner-bl" aria-hidden="true"><span className="dot" /></div>
+      <div className="corner-ornament corner-br" aria-hidden="true"><span className="dot" /></div>
+
+      {/* Side ornament (right edge) */}
+      <div className="side-ornament" aria-hidden="true">
+        <span className="mark-square" />
+        <span className="mark-line" />
+        <span className="mark-text">Vibe · Map</span>
+        <span className="mark-line" />
+        <span className="mark-dot" />
+      </div>
+
       <header className="text-center mb-20">
         <h1 className="serif text-7xl md:text-8xl font-medium tracking-tight mb-6 text-[#18181B] leading-none">
           Vibe<span className="text-[#5E3A3A]">M</span>ap
