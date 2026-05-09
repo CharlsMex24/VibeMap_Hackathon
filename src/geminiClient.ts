@@ -107,6 +107,35 @@ export const overviewSchema: Schema = {
   required: ["resumen", "estructura_general", "diagrama_mermaid", "archivos", "recapitulacion"],
 };
 
+export const diagramToCodeSchema: Schema = {
+  type: SchemaType.OBJECT,
+  properties: {
+    lenguaje_detectado: {
+      type: SchemaType.STRING,
+      description: "Lenguaje en el que se generó el código (ej: 'python', 'javascript', 'pseudocodigo').",
+    },
+    interpretacion: {
+      type: SchemaType.STRING,
+      description: "Qué se entendió del diagrama, en español llano. Lista los pasos/decisiones que se vieron, en orden. 3-6 líneas. Esto sirve para que el usuario verifique si la lectura del diagrama fue correcta antes de mirar el código.",
+    },
+    codigo: {
+      type: SchemaType.STRING,
+      description: "Código fuente listo para copiar y pegar. Sin comentarios extra, sin markdown, sin triple backticks. Solo el código en el lenguaje pedido. Si la imagen es ilegible, devuelve un comentario corto en el lenguaje pedido explicando el problema.",
+    },
+    supuestos: {
+      type: SchemaType.ARRAY,
+      description: "Cosas que tuviste que asumir porque el diagrama no las decía explícitamente (ej: 'asumí que la entrada es un entero', 'asumí que el bucle termina cuando i > 10'). Vacío si no asumiste nada.",
+      items: { type: SchemaType.STRING },
+    },
+    advertencias: {
+      type: SchemaType.ARRAY,
+      description: "Avisos para el usuario sobre el resultado: zonas borrosas del diagrama, ramas ambiguas, símbolos no estándar, posibles errores. Vacío si todo se vio claro.",
+      items: { type: SchemaType.STRING },
+    },
+  },
+  required: ["lenguaje_detectado", "interpretacion", "codigo", "supuestos", "advertencias"],
+};
+
 export const fileMapSchema: Schema = {
   type: SchemaType.OBJECT,
   properties: {
@@ -175,6 +204,52 @@ export const fileMapModel = genAI.getGenerativeModel({
     responseMimeType: "application/json",
     responseSchema: fileMapSchema,
     temperature: 0.4,
+  },
+});
+
+const diagramToCodeSystemInstruction = `
+Eres un traductor de diagramas de flujo a código.
+
+Recibes UNA imagen de un diagrama de flujo (puede ser dibujado a mano, en pizarra,
+en papel, o hecho en una herramienta tipo Lucidchart/Draw.io) y un lenguaje objetivo.
+
+Tu trabajo:
+1. LEER el diagrama: identifica los nodos (inicio, fin, procesos, decisiones, entradas/salidas)
+   y el flujo de las flechas. Respeta los símbolos estándar:
+   - Óvalo = inicio/fin
+   - Rectángulo = proceso/acción
+   - Rombo = decisión (sí/no, true/false)
+   - Paralelogramo = entrada/salida
+   - Flechas = orden del flujo
+2. INTERPRETAR el diagrama en español llano, paso por paso, antes de escribir el código.
+3. GENERAR código limpio en el lenguaje pedido que implemente exactamente ese flujo.
+
+REGLAS DEL CÓDIGO:
+- Idiomático del lenguaje pedido (snake_case en Python, camelCase en JS, etc.).
+- Nombres de variables/funciones legibles, no 'a', 'b', 'x' salvo que el diagrama lo diga.
+- Sin comentarios verbosos. Solo un comentario corto si una decisión del diagrama no es obvia.
+- Sin markdown, sin triple backticks, sin "aquí tienes el código:". Solo el código puro.
+- Si el diagrama tiene un bucle (flecha que vuelve atrás), implémentalo como while/for.
+- Si tiene un rombo, implémentalo como if/else.
+- Si pide pseudocódigo, usa una sintaxis tipo: SI ... ENTONCES ... SINO ... FIN SI / MIENTRAS ... HACER ... FIN MIENTRAS.
+
+REGLAS DE HONESTIDAD:
+- Si una zona del diagrama está borrosa, ilegible o ambigua, ANÓTALO en 'advertencias'.
+- Si tuviste que ASUMIR algo (un tipo de dato, un valor inicial, qué significa una flecha
+  sin etiqueta), declara cada supuesto en 'supuestos'.
+- Si la imagen claramente NO es un diagrama de flujo, devuelve 'codigo' vacío o un
+  comentario corto explicando que no se reconoció un diagrama, y explica en 'advertencias'.
+- Nunca inventes pasos que no están en el diagrama. Es mejor un código corto y fiel que
+  uno largo con cosas asumidas.
+`.trim();
+
+export const diagramToCodeModel = genAI.getGenerativeModel({
+  model: "gemini-2.5-flash",
+  systemInstruction: diagramToCodeSystemInstruction,
+  generationConfig: {
+    responseMimeType: "application/json",
+    responseSchema: diagramToCodeSchema,
+    temperature: 0.3,
   },
 });
 

@@ -9,7 +9,15 @@ VibeMap recibe una carpeta de proyecto, la analiza con Gemini, y devuelve dos co
 1. **Un mapa general** del proyecto entero (un diagrama Mermaid + un resumen humano).
 2. **Mapas individuales por archivo** (bajo demanda, click en cualquier archivo): metáfora del mundo real, flujo interno, tabla de funciones traducidas a lenguaje humano, y puntos clave.
 
-No genera código. No ejecuta nada. Solo **traduce código a comprensión**.
+Modo principal: **traducir código a comprensión**. No ejecuta nada del proyecto del usuario.
+
+### Módulo extra: Diagrama → Código
+
+Pestaña adicional "Diagrama → Código". El usuario sube una foto de un diagrama de
+flujo (papel, pizarra, Lucidchart, etc.), elige un lenguaje destino, y Gemini
+multimodal devuelve: una interpretación en español de lo que vio, el código listo
+para copiar, y una lista explícita de supuestos y advertencias. Es la dirección
+inversa al flujo principal y se etiqueta siempre como *borrador*.
 
 ## Para quién
 
@@ -24,7 +32,9 @@ Por eso el tono de las explicaciones es **deliberadamente simple, con metáforas
 
 ## Lo que NO es VibeMap
 
-- ❌ No es un generador de código (la dirección "idea → código" es de otro producto).
+- ❌ No es un generador de código a partir de prompts en texto (la dirección "idea
+  escrita → código" sigue siendo de otros productos). El módulo Diagrama → Código
+  es una excepción acotada: requiere un diagrama visual como entrada.
 - ❌ No es un linter ni un revisor de seguridad.
 - ❌ No es un autocompletador.
 - ❌ No es un chat: el flujo es drop-and-explain, no conversación.

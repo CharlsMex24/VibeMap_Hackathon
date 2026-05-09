@@ -5,6 +5,7 @@ import {
   overviewModel,
   fileMapModel,
   streamingOverviewModel,
+  diagramToCodeModel,
 } from "./geminiClient.js";
 
 const app = express();
@@ -12,7 +13,14 @@ const port = 3000;
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",")
-  : ["http://localhost:5173"];
+  : [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:5175",
+      "http://127.0.0.1:5173",
+      "http://127.0.0.1:5174",
+      "http://127.0.0.1:5175",
+    ];
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -32,7 +40,7 @@ const apiLimit = rateLimit({
   legacyHeaders: false,
 });
 
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "15mb" }));
 
 type ProjectFile = { path: string; content: string };
 
@@ -383,6 +391,79 @@ app.post("/api/file-map", apiLimit, async (req, res) => {
     res.json(fixMermaidInPayload(parsed));
   } catch (err) {
     console.error("[file-map] Error:", err);
+    const { status, userMessage } = describeGeminiError(err);
+    res.status(status).json({ error: userMessage });
+  }
+});
+
+const ALLOWED_DIAGRAM_MIMES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_TARGET_LANGUAGES = new Set([
+  "python",
+  "javascript",
+  "typescript",
+  "pseudocodigo",
+  "go",
+  "java",
+  "csharp",
+  "cpp",
+]);
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+
+function buildDiagramPrompt(targetLanguage: string): string {
+  return `
+Lenguaje objetivo: ${targetLanguage}
+
+Analiza la imagen del diagrama de flujo adjunta y devuelve el JSON con:
+- 'lenguaje_detectado': el lenguaje en que generaste el código (debe coincidir con '${targetLanguage}').
+- 'interpretacion': describe en español, paso por paso, lo que viste en el diagrama.
+- 'codigo': el código que implementa ese flujo, listo para copiar y pegar.
+- 'supuestos': lista de cosas que tuviste que asumir.
+- 'advertencias': lista de zonas borrosas, ambiguas o no estándar del diagrama.
+`.trim();
+}
+
+app.post("/api/diagram-to-code", apiLimit, async (req, res) => {
+  try {
+    const { imageBase64, mimeType, lenguajeObjetivo } = req.body ?? {};
+
+    if (typeof imageBase64 !== "string" || imageBase64.length === 0) {
+      return res.status(400).json({ error: "imageBase64 (string) es requerido" });
+    }
+    if (typeof mimeType !== "string" || !ALLOWED_DIAGRAM_MIMES.has(mimeType)) {
+      return res.status(400).json({ error: "mimeType debe ser image/jpeg, image/png o image/webp" });
+    }
+    if (typeof lenguajeObjetivo !== "string" || !ALLOWED_TARGET_LANGUAGES.has(lenguajeObjetivo)) {
+      return res.status(400).json({
+        error: `lenguajeObjetivo debe ser uno de: ${Array.from(ALLOWED_TARGET_LANGUAGES).join(", ")}`,
+      });
+    }
+
+    const cleanedBase64 = imageBase64.replace(/^data:[^;]+;base64,/, "");
+    const approxBytes = Math.floor((cleanedBase64.length * 3) / 4);
+    if (approxBytes > MAX_IMAGE_BYTES) {
+      return res.status(400).json({ error: "Imagen demasiado grande (máximo 8 MB)" });
+    }
+
+    console.log(`[diagram-to-code] ${mimeType} ~${Math.round(approxBytes / 1024)}KB → ${lenguajeObjetivo}`);
+
+    const result = await withRetry(() =>
+      diagramToCodeModel.generateContent([
+        { inlineData: { mimeType, data: cleanedBase64 } },
+        { text: buildDiagramPrompt(lenguajeObjetivo) },
+      ])
+    );
+    const text = result.response.text();
+
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      console.error("[diagram-to-code] Parse failed. Raw:", text.slice(0, 500));
+      return res.status(502).json({ error: "Respuesta de IA inválida" });
+    }
+    res.json(parsed);
+  } catch (err) {
+    console.error("[diagram-to-code] Error:", err);
     const { status, userMessage } = describeGeminiError(err);
     res.status(status).json({ error: userMessage });
   }
